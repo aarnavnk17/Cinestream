@@ -117,36 +117,7 @@
 
     <div class="admin-container">
         <div class="row">
-            <div class="col-md-4">
-                <div class="card p-4 shadow-sm">
-                    <h3 class="mb-4 fw-bold">Add New Content</h3>
-                    <form action="/admin/add" method="POST">
-                        <div class="mb-3">
-                            <label class="form-label text-muted small">Movie Title</label>
-                            <input type="text" name="title" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-muted small">Genre</label>
-                            <input type="text" name="genre" class="form-control" placeholder="Action, Drama...">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-muted small">Cover Image URL</label>
-                            <input type="text" name="image_url" class="form-control" placeholder="https://unsplash.com/...">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-muted small">Initial Stock</label>
-                            <input type="number" name="available" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-muted small">Synopsis</label>
-                            <textarea name="description" class="form-control" rows="3"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-stream w-100">Upload to Stream</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <div class="card p-4 shadow-sm">
                     <h3 class="mb-4 fw-bold">Content Library</h3>
                     <div class="table-responsive">
@@ -155,6 +126,7 @@
                                 <tr>
                                     <th>Title</th>
                                     <th>Genre</th>
+                                    <th>Release Year</th>
                                     <th>Stock</th>
                                     <th>Actions</th>
                                 </tr>
@@ -164,6 +136,7 @@
                                 <tr>
                                     <td class="text-white fw-bold">{{ m.title }}</td>
                                     <td><span class="badge bg-dark border border-secondary">{{ m.genre }}</span></td>
+                                    <td>{{ m.release_year }}</td>
                                     <td>{{ m.available }}</td>
                                     <td>
                                         <a href="/admin/delete/{{ m.id }}" class="btn btn-outline-danger btn-sm rounded-pill px-3">Remove</a>

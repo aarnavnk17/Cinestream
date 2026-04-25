@@ -261,31 +261,6 @@ def admin_sync():
         return f"Sync Failed: {str(e)} ❌ <a href='/admin'>Back to Admin</a>"
 
 
-# ---------------- ADMIN ADD MOVIE ----------------
-@app.route('/admin/add', methods=['POST'])
-def admin_add():
-    if 'user_id' not in session:
-        return redirect('/')
-
-    user = User.query.get(session['user_id'])
-
-    if not user or not user.is_admin:
-        return "Access Denied ❌"
-
-    movie = Movie(
-        title=request.form['title'],
-        description=request.form.get('description', ''),
-        image_url=request.form.get('image_url', ''),
-        genre=request.form.get('genre', ''),
-        available=int(request.form['available'])
-    )
-
-    db.session.add(movie)
-    db.session.commit()
-
-    return redirect('/admin')
-
-
 # ---------------- SEED DATA ----------------
 @app.route('/seed')
 def seed():
