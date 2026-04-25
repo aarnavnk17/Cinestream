@@ -11,7 +11,17 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-    # ✅ Automatic Sync on Startup if DB is empty (Perfect for Render deploys)
+    
+    # ✅ Permanent Admin Setup
+    admin_user = User.query.filter_by(username='admin').first()
+    if not admin_user:
+        print("Creating permanent admin account...")
+        hashed_pw = generate_password_hash('admin123')
+        default_admin = User(username='admin', password=hashed_pw, is_admin=True)
+        db.session.add(default_admin)
+        db.session.commit()
+
+    # ✅ Automatic Sync on Startup if DB is empty
     if Movie.query.count() == 0:
         print("Fresh deployment detected. Running automatic TMDB Sync...")
         try:
