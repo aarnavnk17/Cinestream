@@ -11,6 +11,14 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+    # ✅ Automatic Sync on Startup if DB is empty (Perfect for Render deploys)
+    if Movie.query.count() == 0:
+        print("Fresh deployment detected. Running automatic TMDB Sync...")
+        try:
+            from tmdb_sync import sync
+            sync()
+        except Exception as e:
+            print(f"Auto-sync failed: {e}")
 
 # ---------------- LOGIN ----------------
 @app.route('/', methods=['GET', 'POST'])
