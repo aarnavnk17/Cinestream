@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineStream - Your Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap');
+        body {
+            background-color: #0b0f19;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            padding-top: 100px;
+        }
+        .cart-container {
+            max-width: 900px;
+            margin: auto;
+            background: #161d2f;
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .cart-img {
+            width: 80px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 20px;
+        }
+        .item-info { flex-grow: 1; }
+        .price { color: #00d4ff; font-weight: 700; font-size: 1.2rem; }
+        .btn-checkout {
+            background: #00d4ff;
+            color: #0b0f19;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-weight: 700;
+            width: 100%;
+            margin-top: 30px;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        .btn-remove {
+            color: #ff4d4d;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cart-container">
+            <h2 class="fw-bold mb-4">Your Shopping Cart</h2>
+            
+            {% if cart_items %}
+                {% for item in cart_items %}
+                <div class="cart-item">
+                    <img src="{{ item.movie.image_url }}" class="cart-img" alt="">
+                    <div class="item-info">
+                        <h5 class="mb-1">{{ item.movie.title }}</h5>
+                        <div class="small text-muted">{{ item.duration }} Rental</div>
+                        <a href="/remove-from-cart/{{ item.id }}" class="btn-remove"><i class="fas fa-trash-alt me-1"></i> Remove</a>
+                    </div>
+                    <div class="price">₹{{ item.cost }}</div>
+                </div>
+                {% endfor %}
+
+                <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top border-secondary">
+                    <h4 class="m-0">Total Amount</h4>
+                    <h3 class="m-0 text-info">₹{{ total }}</h3>
+                </div>
+
+                <a href="/checkout" class="btn-checkout">Proceed to Checkout</a>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-basket fa-4x mb-4 text-muted"></i>
+                    <h3>Your cart is empty</h3>
+                    <a href="/movies" class="btn btn-outline-info mt-4 rounded-pill px-4">Browse Movies</a>
+                </div>
+            {% endif %}
+            
+            <div class="mt-4 text-center">
+                <a href="/movies" class="text-info text-decoration-none small"><i class="fas fa-arrow-left me-2"></i> Continue Browsing</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineStream - Browse</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-blue: #00d4ff;
+            --accent-blue: #005f73;
+            --bg-dark: #0b0f19;
+            --card-bg: #161d2f;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding-bottom: 50px;
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background: linear-gradient(to bottom, rgba(11,15,25,0.9) 0%, rgba(11,15,25,0) 100%);
+            padding: 20px 4%;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar-custom.scrolled {
+            background: var(--bg-dark);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .brand {
+            color: var(--primary-blue);
+            font-size: 2rem;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Hero */
+        .hero {
+            height: 40vh;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2025&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 0 4%;
+        }
+
+        /* Filters */
+        .filter-section {
+            padding: 20px 4%;
+            background-color: var(--bg-dark);
+            position: sticky;
+            top: 80px;
+            z-index: 900;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .search-input, .filter-select {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 50px;
+            padding: 10px 25px;
+        }
+
+        /* Movie Grid */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            padding: 20px 4%;
+        }
+
+        .movie-card {
+            height: 300px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-blue);
+            z-index: 10;
+        }
+
+        .card-img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(11,15,25,0.95) 0%, transparent 70%);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .movie-card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .movie-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .price-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-blue);
+            color: var(--bg-dark);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+
+        /* Modal Customization */
+        .modal-content {
+            background-color: var(--card-bg);
+            color: white;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .modal-poster {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+        }
+
+        .modal-body {
+            padding: 30px;
+            margin-top: -60px;
+            position: relative;
+        }
+
+        .duration-selector {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 10px;
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .duration-selector option {
+            background: var(--card-bg);
+            color: white;
+        }
+
+        .btn-cart-large {
+            background-color: var(--primary-blue);
+            color: var(--bg-dark);
+            border: none;
+            padding: 12px 40px;
+            border-radius: 10px;
+            font-weight: 700;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-cart-large:hover {
+            background-color: white;
+            transform: translateY(-2px);
+        }
+
+        .cart-badge {
+            background: var(--primary-blue);
+            color: var(--bg-dark);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 50%;
+            position: absolute;
+            top: -5px;
+            right: -10px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar-custom d-flex justify-content-between align-items-center" id="navbar">
+        <a href="/movies" class="brand">CineStream</a>
+        <div class="d-flex align-items-center">
+            <a href="/dashboard" class="text-white text-decoration-none me-4">My Rentals</a>
+            <a href="/cart" class="text-white text-decoration-none me-4 position-relative">
+                <i class="fas fa-shopping-cart"></i> Cart
+            </a>
+            {% if user.is_admin %}
+            <a href="/admin" class="text-white text-decoration-none me-4">Admin</a>
+            {% endif %}
+            <a href="/logout" class="btn btn-outline-info btn-sm px-3 rounded-pill">Logout</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="container-fluid">
+            <h1 class="display-5 fw-bold">Premium Cinema</h1>
+            <p class="text-info lead">Rent your favorites for 2 days, 1 week, or 1 month.</p>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <form action="/movies" method="GET" class="d-flex flex-wrap gap-3 align-items-center">
+            <div class="flex-grow-1">
+                <input type="text" name="q" value="{{ search_query }}" class="search-input w-100" placeholder="Search movies...">
+            </div>
+            
+            <select name="lang" class="filter-select" onchange="this.form.submit()">
+                <option value="">All Languages</option>
+                {% for l in languages %}
+                <option value="{{ l }}" {{ 'selected' if l == selected_lang else '' }}>{{ l }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="genre" class="filter-select" onchange="this.form.submit()">
+                <option value="">All Genres</option>
+                {% for g in all_genres %}
+                <option value="{{ g }}" {{ 'selected' if g == selected_genre else '' }}>{{ g }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn btn-info rounded-pill px-4">Apply</button>
+        </form>
+    </div>
+
+    <div class="movie-grid">
+        {% for m in movies %}
+        <div class="movie-card" onclick="showDetails('{{ m.title|escape }}', '{{ m.description|replace("'", "\\'")|escape }}', '{{ m.genre|escape }}', '{{ m.image_url|escape }}', '{{ m.available }}', '{{ m.id }}', '{{ m.language }}', '{{ m.release_year }}', '{{ m.price }}')">
+            <div class="price-tag">₹{{ m.price }}</div>
+            <img src="{{ m.image_url if m.image_url else 'https://images.unsplash.com/photo-1485846234645-a62644ef7467?q=80&w=2000&auto=format&fit=crop' }}" class="card-img" alt="{{ m.title }}">
+            <div class="card-overlay">
+                <div class="small text-info fw-bold">{{ m.release_year }}</div>
+                <div class="movie-title">{{ m.title }}</div>
+                <div class="small text-muted" style="font-size: 0.7rem;">{{ m.language }} | {{ m.genre }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="movieModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <img id="modalImg" src="" class="modal-poster">
+                <div class="modal-body">
+                    <h2 id="modalTitle" class="fw-bold mb-0"></h2>
+                    <p id="modalYear" class="text-info mb-3"></p>
+                    <p id="modalDesc" class="text-muted"></p>
+                    
+                    <form id="cartForm" action="" method="POST">
+                        <label class="small text-info mb-2 fw-bold">SELECT RENTAL DURATION</label>
+                        <select name="duration" id="durationSelect" class="duration-selector" onchange="updatePrice()">
+                            <option value="2 Days">2 Days (Standard)</option>
+                            <option value="1 Week">1 Week (Best Value)</option>
+                            <option value="1 Month">1 Month (Unlimited)</option>
+                        </select>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <span id="modalStock" class="small text-muted"></span>
+                            <button type="submit" id="cartBtn" class="btn-cart-large">Add to Cart</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let basePrice = 0;
+
+        function showDetails(title, desc, genre, img, stock, id, lang, year, price) {
+            basePrice = parseInt(price);
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalYear').innerText = year + ' • ' + lang + ' • ' + genre;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('modalImg').src = img || 'https://images.unsplash.com/photo-1485846234645-a62644ef7467?q=80&w=2000&auto=format&fit=crop';
+            document.getElementById('modalStock').innerText = stock + ' Units Remaining';
+            
+            document.getElementById('cartForm').action = '/add-to-cart/' + id;
+            updatePrice();
+            
+            new bootstrap.Modal(document.getElementById('movieModal')).show();
+        }
+
+        function updatePrice() {
+            const duration = document.getElementById('durationSelect').value;
+            let totalPrice = basePrice;
+            if (duration === "1 Week") totalPrice = Math.floor(basePrice * 2.5);
+            if (duration === "1 Month") totalPrice = basePrice * 6;
+            
+            document.getElementById('cartBtn').innerText = 'Add to Cart - ₹' + totalPrice;
+        }
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+    </script>
+</body>
+</html>
