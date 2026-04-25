@@ -10,6 +10,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db.init_app(app)
 
 with app.app_context():
+    # Temporarily drop all to apply the new password length schema
+    db.drop_all() 
     db.create_all()
     
     # ✅ Permanent Admin Setup
