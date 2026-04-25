@@ -11,9 +11,8 @@
             color: #e5e5e5;
             font-family: 'Outfit', sans-serif;
         }
-        .container {
-            margin-top: 50px;
-            padding-bottom: 50px;
+        .container-fluid {
+            padding: 50px 4%;
         }
         .table {
             color: #e5e5e5;
@@ -21,118 +20,147 @@
             border-radius: 12px;
             overflow: hidden;
             border: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
         }
         .table-hover tbody tr:hover {
             background-color: rgba(0, 212, 255, 0.05);
             color: #fff;
         }
         .header-section {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             border-left: 5px solid #00d4ff;
-            padding-left: 20px;
+            padding-left: 15px;
         }
         h2 {
             color: #00d4ff;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 1.2rem;
+            margin-bottom: 0;
         }
         .navbar-custom {
             background-color: #0b0f19;
             border-bottom: 1px solid rgba(0, 212, 255, 0.1);
             padding: 15px 4%;
         }
+        .card-db {
+            background-color: #161d2f;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            height: 100%;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-dark navbar-custom">
-        <div class="container-fluid">
+        <div class="container-fluid py-0">
             <a class="navbar-brand text-info fw-bold" href="/admin">STREAM EXPLORER</a>
             <div class="d-flex">
+                <a href="/admin" class="btn btn-outline-info btn-sm me-2 rounded-pill px-3">Admin Panel</a>
                 <a href="/movies" class="btn btn-outline-light btn-sm me-2 rounded-pill px-3">Back to Stream</a>
                 <a href="/logout" class="btn btn-danger btn-sm rounded-pill px-3">Logout</a>
             </div>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="header-section">
-            <h2>User Database</h2>
-        </div>
-        <table class="table table-hover">
-            <thead class="bg-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Access Level</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.username }}</td>
-                    <td><span class="badge {{ 'bg-info text-dark' if user.is_admin else 'bg-secondary' }}">{{ 'Admin' if user.is_admin else 'Standard' }}</span></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="container-fluid">
+        <div class="row g-4">
+            <!-- User Database -->
+            <div class="col-md-6">
+                <div class="card-db">
+                    <div class="header-section">
+                        <h2>User Database</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="bg-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Level</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td><span class="badge {{ 'bg-info text-dark' if user.is_admin else 'bg-secondary' }}">{{ 'Admin' if user.is_admin else 'User' }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-        <div class="header-section mt-5">
-            <h2>Content Inventory</h2>
-        </div>
-        <table class="table table-hover">
-            <thead class="bg-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Genre</th>
-                    <th>Available Stock</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for movie in movies %}
-                <tr>
-                    <td>{{ movie.id }}</td>
-                    <td class="fw-bold">{{ movie.title }}</td>
-                    <td>{{ movie.genre }}</td>
-                    <td>{{ movie.available }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            <!-- Rental Logs -->
+            <div class="col-md-6">
+                <div class="card-db">
+                    <div class="header-section">
+                        <h2>Rental Activity Log</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="bg-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Movie</th>
+                                    <th>Cost</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rental in rentals %}
+                                <tr>
+                                    <td>{{ rental.id }}</td>
+                                    <td>UID: {{ rental.user_id }}</td>
+                                    <td>MID: {{ rental.movie_id }}</td>
+                                    <td class="text-info">₹{{ rental.cost }}</td>
+                                    <td>{{ rental.rental_date.strftime('%Y-%m-%d') if rental.rental_date else 'N/A' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-        <div class="header-section mt-5">
-            <h2>Rental Logs</h2>
+            <!-- Content Inventory (Full Width) -->
+            <div class="col-md-12 mt-4">
+                <div class="card-db">
+                    <div class="header-section">
+                        <h2>Master Content Inventory</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="bg-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Year</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for movie in movies %}
+                                <tr>
+                                    <td>{{ movie.id }}</td>
+                                    <td class="fw-bold text-white">{{ movie.title }}</td>
+                                    <td>{{ movie.release_year }}</td>
+                                    <td class="text-info">₹{{ movie.price }}</td>
+                                    <td>{{ movie.available }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-        <table class="table table-hover">
-            <thead class="bg-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>User ID</th>
-                    <th>Content ID</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for rental in rentals %}
-                <tr>
-                    <td>{{ rental.id }}</td>
-                    <td>{{ rental.user_id }}</td>
-                    <td>{{ rental.movie_id }}</td>
-                    <td>
-                        {% if rental.returned %}
-                        <span class="badge bg-success">Returned</span>
-                        {% else %}
-                        <span class="badge bg-warning text-dark">Active</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ rental.rental_date }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
 </body>
 </html>
