@@ -5,7 +5,7 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(50))
+    password = db.Column(db.String(255))
     is_admin = db.Column(db.Boolean, default=False)
     rentals = db.relationship('Rental', backref='user', lazy=True)
 
