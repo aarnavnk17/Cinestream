@@ -9,16 +9,16 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap');
         body {
-            background-color: #0b0f19;
+            background-color: #0d0221;
             color: white;
             font-family: 'Outfit', sans-serif;
             padding: 80px 0;
         }
         .payment-card {
-            background: #161d2f;
+            background: #1a0b3b;
             border-radius: 20px;
             padding: 40px;
-            border: 1px solid rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(157, 80, 187, 0.1);
             max-width: 600px;
             margin: auto;
         }
@@ -32,12 +32,12 @@
         .form-control:focus {
             background: rgba(255,255,255,0.1);
             color: white;
-            border-color: #00d4ff;
-            box-shadow: none;
+            border-color: #9d50bb;
+            box-shadow: 0 0 10px rgba(157, 80, 187, 0.2);
         }
         .btn-pay {
-            background: #00d4ff;
-            color: #0b0f19;
+            background: linear-gradient(45deg, #9d50bb, #ff00cc);
+            color: white;
             border: none;
             padding: 15px;
             border-radius: 12px;
@@ -55,7 +55,7 @@
             <div class="mb-4 p-3 bg-dark rounded border border-secondary">
                 <div class="d-flex justify-content-between mb-2">
                     <span>Order Total:</span>
-                    <span class="text-info fw-bold">₹{{ total }}</span>
+                    <span class="fw-bold" style="color: #ff00cc;">₹{{ total }}</span>
                 </div>
                 <div class="small text-muted">{{ cart_items|length }} Movies in cart</div>
             </div>

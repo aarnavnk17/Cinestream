@@ -40,7 +40,9 @@ def login():
             session['user_id'] = user.id
             return redirect('/movies')
         else:
-            return "Invalid username or password ❌"
+            from flask import flash
+            flash("Invalid username or password ❌", "danger")
+            return redirect('/')
     return render_template('login.html')
 
 # ---------------- REGISTER ----------------
@@ -48,7 +50,9 @@ def login():
 def register():
     existing_user = User.query.filter_by(username=request.form['username']).first()
     if existing_user:
-        return "Username already exists ❌"
+        from flask import flash
+        flash("Username already exists ❌", "warning")
+        return redirect('/')
     hashed_password = generate_password_hash(request.form['password'])
     is_admin = True if User.query.count() == 0 else False
     user = User(username=request.form['username'], password=hashed_password, is_admin=is_admin)

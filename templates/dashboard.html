@@ -9,7 +9,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap');
         body {
-            background-color: #0b0f19;
+            background-color: #0d0221;
             color: white;
             font-family: 'Outfit', sans-serif;
             padding-top: 100px;
@@ -21,15 +21,16 @@
             padding: 20px 4%;
         }
         .rental-card {
-            background: #161d2f;
+            background: #1a0b3b;
             border-radius: 15px;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(157, 80, 187, 0.1);
             transition: transform 0.3s;
         }
         .rental-card:hover {
             transform: translateY(-5px);
-            border-color: #00d4ff;
+            border-color: #9d50bb;
+            box-shadow: 0 0 20px rgba(157, 80, 187, 0.3);
         }
         .rental-img {
             height: 180px;
@@ -39,19 +40,31 @@
         }
         .rental-info { padding: 20px; }
         .tag-duration {
-            background: rgba(0, 212, 255, 0.1);
-            color: #00d4ff;
+            background: rgba(157, 80, 187, 0.1);
+            color: #9d50bb;
             padding: 4px 12px;
             border-radius: 50px;
             font-size: 0.8rem;
             font-weight: 700;
         }
+        .btn-watch {
+            background: linear-gradient(45deg, #9d50bb, #ff00cc);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50px;
+            font-weight: 700;
+            width: 100%;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar fixed-top px-4 py-3" style="background: rgba(11,15,25,0.9); backdrop-filter: blur(10px);">
-        <a href="/movies" class="h3 fw-bold text-info text-decoration-none">CineStream</a>
-        <a href="/movies" class="btn btn-outline-info rounded-pill px-4">Browse More</a>
+    <nav class="navbar fixed-top px-4 py-3" style="background: rgba(13, 2, 33, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(157, 80, 187, 0.1);">
+        <a href="/movies" class="h3 fw-bold text-decoration-none" style="background: linear-gradient(to right, #9d50bb, #ff00cc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CineStream</a>
+        <a href="/movies" class="btn btn-outline-info rounded-pill px-4" style="border-color: #9d50bb; color: #9d50bb;">Browse More</a>
     </nav>
 
     <div class="container-fluid px-5">
@@ -68,8 +81,8 @@
                         <span class="small text-muted">₹{{ r.cost }}</span>
                     </div>
                     <h5 class="fw-bold">{{ r.movie.title }}</h5>
-                    <p class="small text-muted mb-3">{{ r.movie.genre }}</p>
-                    <a href="#" class="btn btn-info w-100 rounded-pill fw-bold">Watch Now</a>
+                    <p class="small text-muted mb-3">{{ r.movie.genres|map(attribute='name')|join(', ') }}</p>
+                    <a href="#" class="btn-watch">Watch Now</a>
                     <div class="text-center mt-3">
                         <a href="/return/{{ r.id }}" class="text-danger small text-decoration-none">Return Early</a>
                     </div>

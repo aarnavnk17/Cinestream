@@ -10,10 +10,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap');
 
         :root {
-            --primary-blue: #00d4ff;
-            --accent-blue: #005f73;
-            --bg-dark: #0b0f19;
-            --card-bg: #161d2f;
+            --primary-purple: #9d50bb;
+            --accent-magenta: #ff00cc;
+            --bg-dark: #0d0221;
+            --card-bg: #1a0b3b;
         }
 
         body {
@@ -26,7 +26,7 @@
 
         /* Navbar */
         .navbar-custom {
-            background: linear-gradient(to bottom, rgba(11,15,25,0.9) 0%, rgba(11,15,25,0) 100%);
+            background: linear-gradient(to bottom, rgba(13,2,33,0.9) 0%, rgba(13,2,33,0) 100%);
             padding: 20px 4%;
             position: fixed;
             top: 0;
@@ -36,16 +36,19 @@
 
         .navbar-custom.scrolled {
             background: var(--bg-dark);
-            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            border-bottom: 1px solid rgba(157, 80, 187, 0.2);
         }
 
         .brand {
-            color: var(--primary-blue);
+            color: var(--primary-purple);
             font-size: 2rem;
             font-weight: 700;
             text-decoration: none;
             letter-spacing: 1px;
             text-transform: uppercase;
+            background: linear-gradient(to right, var(--primary-purple), var(--accent-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         /* Hero */
@@ -98,7 +101,8 @@
 
         .movie-card:hover {
             transform: scale(1.05);
-            border-color: var(--primary-blue);
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 20px rgba(157, 80, 187, 0.4);
             z-index: 10;
         }
 
@@ -111,7 +115,7 @@
         .card-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(11,15,25,0.95) 0%, transparent 70%);
+            background: linear-gradient(to top, rgba(13,2,33,0.95) 0%, transparent 70%);
             padding: 15px;
             display: flex;
             flex-direction: column;
@@ -133,8 +137,8 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            background: var(--primary-blue);
-            color: var(--bg-dark);
+            background: linear-gradient(45deg, var(--primary-purple), var(--accent-magenta));
+            color: white;
             padding: 4px 12px;
             border-radius: 50px;
             font-size: 0.8rem;
@@ -148,7 +152,7 @@
             background-color: var(--card-bg);
             color: white;
             border-radius: 20px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(157, 80, 187, 0.3);
             overflow: hidden;
         }
 
@@ -177,8 +181,8 @@
         }
 
         .btn-cart-large {
-            background-color: var(--primary-blue);
-            color: var(--bg-dark);
+            background: linear-gradient(45deg, var(--primary-purple), var(--accent-magenta));
+            color: white;
             border: none;
             padding: 12px 40px;
             border-radius: 10px;
@@ -212,7 +216,7 @@
     <div class="hero">
         <div class="container-fluid">
             <h1 class="display-5 fw-bold">Premium Content</h1>
-            <p class="text-info lead">High-quality streaming optimized for all your devices.</p>
+            <p class="text-white opacity-75 lead">High-quality streaming optimized for all your devices.</p>
         </div>
     </div>
 
@@ -236,18 +240,27 @@
                 {% endfor %}
             </select>
 
-            <button type="submit" class="btn btn-info rounded-pill px-4">Apply</button>
+            <button type="submit" class="btn btn-primary rounded-pill px-4" style="background: var(--primary-purple); border: none;">Apply</button>
         </form>
     </div>
 
     <div class="movie-grid">
         {% for m in movies %}
         {% set genre_list = m.genres|map(attribute='name')|join(', ') %}
-        <div class="movie-card" onclick="showDetails('{{ m.title|escape }}', '{{ m.description|replace("'", "\\'")|escape }}', '{{ genre_list|escape }}', '{{ m.image_url|escape }}', '{{ m.available }}', '{{ m.id }}', '{{ m.language.name }}', '{{ m.release_year }}', '{{ m.tier.price }}')">
+        <div class="movie-card" 
+             data-title="{{ m.title }}" 
+             data-desc="{{ m.description }}" 
+             data-genre="{{ genre_list }}" 
+             data-img="{{ m.image_url }}" 
+             data-stock="{{ m.available }}" 
+             data-id="{{ m.id }}" 
+             data-lang="{{ m.language.name }}" 
+             data-year="{{ m.release_year }}" 
+             data-price="{{ m.tier.price }}">
             <div class="price-tag">₹{{ m.tier.price }}</div>
             <img src="{{ m.image_url if m.image_url else 'https://images.unsplash.com/photo-1485846234645-a62644ef7467?q=80&w=2000&auto=format&fit=crop' }}" class="card-img" alt="{{ m.title }}">
             <div class="card-overlay">
-                <div class="small text-info fw-bold">{{ m.release_year }}</div>
+                <div class="small fw-bold" style="color: var(--accent-magenta);">{{ m.release_year }}</div>
                 <div class="movie-title">{{ m.title }}</div>
                 <div class="small text-muted" style="font-size: 0.7rem;">{{ m.language.name }} | {{ genre_list }}</div>
             </div>
@@ -287,19 +300,23 @@
     <script>
         let basePrice = 0;
 
-        function showDetails(title, desc, genre, img, stock, id, lang, year, price) {
-            basePrice = parseInt(price);
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalYear').innerText = year + ' • ' + lang + ' • ' + genre;
-            document.getElementById('modalDesc').innerText = desc;
-            document.getElementById('modalImg').src = img || 'https://images.unsplash.com/photo-1485846234645-a62644ef7467?q=80&w=2000&auto=format&fit=crop';
-            document.getElementById('modalStock').innerText = stock + ' Units Remaining';
-            
-            document.getElementById('cartForm').action = '/add-to-cart/' + id;
-            updatePrice();
-            
-            new bootstrap.Modal(document.getElementById('movieModal')).show();
-        }
+        document.querySelectorAll('.movie-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const data = card.dataset;
+                basePrice = parseInt(data.price);
+                
+                document.getElementById('modalTitle').innerText = data.title;
+                document.getElementById('modalYear').innerText = data.year + ' • ' + data.lang + ' • ' + data.genre;
+                document.getElementById('modalDesc').innerText = data.desc;
+                document.getElementById('modalImg').src = data.img || 'https://images.unsplash.com/photo-1485846234645-a62644ef7467?q=80&w=2000&auto=format&fit=crop';
+                document.getElementById('modalStock').innerText = data.stock + ' Units Remaining';
+                
+                document.getElementById('cartForm').action = '/add-to-cart/' + data.id;
+                updatePrice();
+                
+                new bootstrap.Modal(document.getElementById('movieModal')).show();
+            });
+        });
 
         function updatePrice() {
             const duration = document.getElementById('durationSelect').value;
