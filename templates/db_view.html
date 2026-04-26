@@ -31,11 +31,65 @@
 
     <div class="container-fluid">
         <div class="row g-4">
-            <!-- 1. Master Content Table (Shows 2NF FKs) -->
-            <div class="col-12">
+            
+            <!-- 1. Language Lookup Table -->
+            <div class="col-md-4">
                 <div class="card-db">
                     <div class="header-section">
-                        <h2>Master Content Table (Primary Entity)</h2>
+                        <h2>Language Lookup (2NF)</h2>
+                    </div>
+                    <table class="table table-hover">
+                        <thead><tr><th>ID (PK)</th><th>Name</th><th>Code</th></tr></thead>
+                        <tbody>
+                            {% for l in languages %}
+                            <tr><td>{{ l.id }}</td><td class="text-white">{{ l.name }}</td><td>{{ l.code }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. Pricing Tier Table -->
+            <div class="col-md-4">
+                <div class="card-db">
+                    <div class="header-section">
+                        <h2>Pricing Tiers (2NF)</h2>
+                    </div>
+                    <table class="table table-hover">
+                        <thead><tr><th>ID (PK)</th><th>Name</th><th>Price</th></tr></thead>
+                        <tbody>
+                            {% for t in tiers %}
+                            <tr><td>{{ t.id }}</td><td class="text-white">{{ t.name }}</td><td class="text-info">₹{{ t.price }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. Genre Table -->
+            <div class="col-md-4">
+                <div class="card-db">
+                    <div class="header-section">
+                        <h2>Genre Dictionary (2NF)</h2>
+                    </div>
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-hover">
+                            <thead><tr><th>ID (PK)</th><th>Name</th></tr></thead>
+                            <tbody>
+                                {% for g in genres %}
+                                <tr><td>{{ g.id }}</td><td class="text-white">{{ g.name }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Master Content Table (Primary Entity) -->
+            <div class="col-12 mt-4">
+                <div class="card-db">
+                    <div class="header-section">
+                        <h2>Master Content Inventory (Uses 2NF Foreign Keys)</h2>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -66,61 +120,8 @@
                 </div>
             </div>
 
-            <!-- 2. Language Lookup Table -->
-            <div class="col-md-4">
-                <div class="card-db">
-                    <div class="header-section">
-                        <h2>Language Lookup (2NF)</h2>
-                    </div>
-                    <table class="table table-hover">
-                        <thead><tr><th>ID (PK)</th><th>Name</th><th>Code</th></tr></thead>
-                        <tbody>
-                            {% for l in languages %}
-                            <tr><td>{{ l.id }}</td><td class="text-white">{{ l.name }}</td><td>{{ l.code }}</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 3. Pricing Tier Table -->
-            <div class="col-md-4">
-                <div class="card-db">
-                    <div class="header-section">
-                        <h2>Pricing Tiers (2NF)</h2>
-                    </div>
-                    <table class="table table-hover">
-                        <thead><tr><th>ID (PK)</th><th>Name</th><th>Price</th></tr></thead>
-                        <tbody>
-                            {% for t in tiers %}
-                            <tr><td>{{ t.id }}</td><td class="text-white">{{ t.name }}</td><td class="text-info">₹{{ t.price }}</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 4. Genre Table -->
-            <div class="col-md-4">
-                <div class="card-db">
-                    <div class="header-section">
-                        <h2>Genre Dictionary (2NF)</h2>
-                    </div>
-                    <div class="table-responsive" style="max-height: 300px;">
-                        <table class="table table-hover">
-                            <thead><tr><th>ID (PK)</th><th>Name</th></tr></thead>
-                            <tbody>
-                                {% for g in genres %}
-                                <tr><td>{{ g.id }}</td><td class="text-white">{{ g.name }}</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
             <!-- 5. Users and Rentals -->
-            <div class="col-md-6">
+            <div class="col-md-6 mt-4">
                 <div class="card-db">
                     <div class="header-section"><h2>Users</h2></div>
                     <table class="table table-hover">
@@ -134,7 +135,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6 mt-4">
                 <div class="card-db">
                     <div class="header-section"><h2>Rental Log</h2></div>
                     <table class="table table-hover">
