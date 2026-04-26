@@ -176,11 +176,6 @@
             cursor: pointer;
         }
 
-        .duration-selector option {
-            background: var(--card-bg);
-            color: white;
-        }
-
         .btn-cart-large {
             background-color: var(--primary-blue);
             color: var(--bg-dark);
@@ -195,18 +190,6 @@
         .btn-cart-large:hover {
             background-color: white;
             transform: translateY(-2px);
-        }
-
-        .cart-badge {
-            background: var(--primary-blue);
-            color: var(--bg-dark);
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 50%;
-            position: absolute;
-            top: -5px;
-            right: -10px;
         }
     </style>
 </head>
@@ -228,8 +211,8 @@
 
     <div class="hero">
         <div class="container-fluid">
-            <h1 class="display-5 fw-bold">Premium Cinema</h1>
-            <p class="text-info lead">Rent your favorites for 2 days, 1 week, or 1 month.</p>
+            <h1 class="display-5 fw-bold">Normalized Content</h1>
+            <p class="text-info lead">Database optimized to 2NF Standards for faster streaming.</p>
         </div>
     </div>
 
@@ -242,14 +225,14 @@
             <select name="lang" class="filter-select" onchange="this.form.submit()">
                 <option value="">All Languages</option>
                 {% for l in languages %}
-                <option value="{{ l }}" {{ 'selected' if l == selected_lang else '' }}>{{ l }}</option>
+                <option value="{{ l.id }}" {{ 'selected' if l.id|string == selected_lang else '' }}>{{ l.name }}</option>
                 {% endfor %}
             </select>
 
             <select name="genre" class="filter-select" onchange="this.form.submit()">
                 <option value="">All Genres</option>
                 {% for g in all_genres %}
-                <option value="{{ g }}" {{ 'selected' if g == selected_genre else '' }}>{{ g }}</option>
+                <option value="{{ g.id }}" {{ 'selected' if g.id|string == selected_genre else '' }}>{{ g.name }}</option>
                 {% endfor %}
             </select>
 
@@ -259,13 +242,14 @@
 
     <div class="movie-grid">
         {% for m in movies %}
-        <div class="movie-card" onclick="showDetails('{{ m.title|escape }}', '{{ m.description|replace("'", "\\'")|escape }}', '{{ m.genre|escape }}', '{{ m.image_url|escape }}', '{{ m.available }}', '{{ m.id }}', '{{ m.language }}', '{{ m.release_year }}', '{{ m.price }}')">
-            <div class="price-tag">₹{{ m.price }}</div>
+        {% set genre_list = m.genres|map(attribute='name')|join(', ') %}
+        <div class="movie-card" onclick="showDetails('{{ m.title|escape }}', '{{ m.description|replace("'", "\\'")|escape }}', '{{ genre_list|escape }}', '{{ m.image_url|escape }}', '{{ m.available }}', '{{ m.id }}', '{{ m.language.name }}', '{{ m.release_year }}', '{{ m.tier.price }}')">
+            <div class="price-tag">₹{{ m.tier.price }}</div>
             <img src="{{ m.image_url if m.image_url else 'https://images.unsplash.com/photo-1485846234645-a62644ef7467?q=80&w=2000&auto=format&fit=crop' }}" class="card-img" alt="{{ m.title }}">
             <div class="card-overlay">
                 <div class="small text-info fw-bold">{{ m.release_year }}</div>
                 <div class="movie-title">{{ m.title }}</div>
-                <div class="small text-muted" style="font-size: 0.7rem;">{{ m.language }} | {{ m.genre }}</div>
+                <div class="small text-muted" style="font-size: 0.7rem;">{{ m.language.name }} | {{ genre_list }}</div>
             </div>
         </div>
         {% endfor %}

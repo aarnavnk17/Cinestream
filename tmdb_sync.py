@@ -1,5 +1,5 @@
 import requests
-from app import app, db, Movie
+from app import app, db, Movie, Genre, Language, PricingTier
 
 TMDB_API_KEY = "e528bd8a8676e863cd592e38f8bb91d7"
 BASE_URL = "https://api.themoviedb.org/3"
@@ -18,145 +18,126 @@ LANG_MAP = {
     "gu-IN": "Gujarati"
 }
 
-BLACKLIST = [
-    "Shanthi Appuram Nithya", 
-    "Drogam: Nadanthathu Enna?", 
-    "Anaagariyam", 
-    "Anaagarigam",
-    "Nithya",
-    "Shanthi",
-    "Drogam",
-    "Amma Ponnu"
-]
+BLACKLIST = ["Shanthi Appuram Nithya", "Drogam: Nadanthathu Enna?", "Anaagarigam", "Amma Ponnu"]
 
-def calculate_price(year_str):
+def setup_normalized_tables():
+    # Setup Pricing Tiers
+    tiers = [
+        ("Premium", 299, "New Release (2024+)"),
+        ("Recent", 199, "Recent Hit (2020-2023)"),
+        ("Modern", 149, "Modern Essential (2010-2019)"),
+        ("Vintage", 99, "Classic Vintage (Pre-2010)")
+    ]
+    for name, price, desc in tiers:
+        if not PricingTier.query.filter_by(name=name).first():
+            db.session.add(PricingTier(name=name, price=price, description=desc))
+    
+    # Setup Languages
+    for code, name in LANG_MAP.items():
+        if not Language.query.filter_by(code=code).first():
+            db.session.add(Language(name=name, code=code))
+    
+    db.session.commit()
+
+def get_tier_for_year(year_str):
     try:
         year = int(year_str)
-        if year >= 2024:
-            return 299 # Premium New Release
-        elif year >= 2020:
-            return 199 # Blockbuster Recent
-        elif year >= 2010:
-            return 149 # Modern Essential
-        else:
-            return 99  # Classic Vintage
+        if year >= 2024: return PricingTier.query.filter_by(name="Premium").first()
+        if year >= 2020: return PricingTier.query.filter_by(name="Recent").first()
+        if year >= 2010: return PricingTier.query.filter_by(name="Modern").first()
+        return PricingTier.query.filter_by(name="Vintage").first()
     except:
-        return 179 # Default Premium price
+        return PricingTier.query.filter_by(name="Modern").first()
 
 def fetch_movies(language_code, region, count=100):
     movies = []
     page = 1
+    # Get all TMDB genres and ensure they exist in our DB
     genre_url = f"{BASE_URL}/genre/movie/list?api_key={TMDB_API_KEY}&language=en-US"
-    genres_resp = requests.get(genre_url).json()
-    genre_map = {g['id']: g['name'] for g in genres_resp.get('genres', [])}
+    tmdb_genres = requests.get(genre_url).json().get('genres', [])
+    
+    for tg in tmdb_genres:
+        if not Genre.query.filter_by(name=tg['name']).first():
+            db.session.add(Genre(name=tg['name']))
+    db.session.commit()
 
     original_lang = language_code.split('-')[0]
+    lang_obj = Language.query.filter_by(code=language_code).first()
 
     while len(movies) < count:
-        url = (f"{BASE_URL}/discover/movie?api_key={TMDB_API_KEY}"
-               f"&language=en-US" 
-               f"&region={region}"
-               f"&with_original_language={original_lang}"
-               f"&include_adult=false" 
-               f"&sort_by=popularity.desc"
-               f"&page={page}")
-        
-        response = requests.get(url)
-        if response.status_code != 200:
-            break
-        
-        data = response.json()
+        url = f"{BASE_URL}/discover/movie?api_key={TMDB_API_KEY}&language=en-US&region={region}&with_original_language={original_lang}&include_adult=false&sort_by=popularity.desc&page={page}"
+        data = requests.get(url).json()
         results = data.get('results', [])
-        if not results:
-            break
+        if not results: break
 
         for item in results:
-            if len(movies) >= count:
-                break
+            if len(movies) >= count: break
+            if item.get('adult') or not item.get('poster_path'): continue
             
-            if item.get('adult'):
-                continue
-                
             title = item.get('title')
-            if any(b.lower() in title.lower() for b in BLACKLIST):
-                continue
-
-            if not item.get('poster_path'):
-                continue
-                
-            movie_genres = [genre_map.get(gid) for gid in item.get('genre_ids', []) if genre_map.get(gid)]
-            genre_str = ", ".join(movie_genres) if movie_genres else "Drama"
+            if any(b.lower() in title.lower() for b in BLACKLIST): continue
 
             release_date = item.get('release_date', '')
             year_str = release_date[:4] if release_date else "N/A"
-            price = calculate_price(year_str)
+            tier = get_tier_for_year(year_str)
+
+            # Get genre objects
+            movie_genres = []
+            item_genre_ids = item.get('genre_ids', [])
+            for tg in tmdb_genres:
+                if tg['id'] in item_genre_ids:
+                    g_obj = Genre.query.filter_by(name=tg['name']).first()
+                    if g_obj: movie_genres.append(g_obj)
 
             movies.append({
                 "title": title,
                 "description": item.get('overview'),
-                "genre": genre_str,
-                "language": LANG_MAP.get(language_code, "Other"),
                 "release_year": year_str,
-                "price": price,
                 "image_url": f"{IMAGE_BASE_URL}{item.get('poster_path')}",
-                "available": 15
+                "language": lang_obj,
+                "tier": tier,
+                "genres": movie_genres
             })
         page += 1
-        
-        if page > 5 and len(movies) < count:
-            url = (f"{BASE_URL}/discover/movie?api_key={TMDB_API_KEY}"
-                   f"&language=en-US" 
-                   f"&region={region}"
-                   f"&with_original_language={original_lang}"
-                   f"&include_adult=false"
-                   f"&sort_by=vote_count.desc"
-                   f"&page={page - 5}")
-            
     return movies
 
 def sync():
     with app.app_context():
-        print("Recreating database schema with Pricing logic...")
+        print("Performing 2NF Normalized Sync...")
+        # For a clean normalized state, we reset
         db.drop_all()
         db.create_all()
         
-        configs = [
-            ("en-US", "US", 70),
-            ("hi-IN", "IN", 70),
-            ("ta-IN", "IN", 70),
-            ("te-IN", "IN", 70),
-            ("ml-IN", "IN", 40),
-            ("kn-IN", "IN", 40),
-            ("bn-IN", "IN", 40),
-            ("mr-IN", "IN", 40),
-            ("pa-IN", "IN", 30),
-            ("gu-IN", "IN", 30)
-        ]
+        # 1. Setup lookup tables
+        setup_normalized_tables()
         
-        total_synced = 0
-        for lang, reg, count in configs:
-            lang_name = LANG_MAP.get(lang)
-            print(f"Syncing {lang_name} movies with pricing...")
-            movies_data = fetch_movies(lang, reg, count)
-            
-            for m_data in movies_data:
-                exists = Movie.query.filter_by(title=m_data['title']).first()
-                if not exists:
-                    movie = Movie(
-                        title=m_data['title'],
-                        description=m_data['description'],
-                        genre=m_data['genre'],
-                        language=m_data['language'],
-                        release_year=m_data['release_year'],
-                        price=m_data['price'],
-                        image_url=m_data['image_url'],
-                        available=m_data['available']
-                    )
-                    db.session.add(movie)
-                    total_synced += 1
+        # 2. Permanent Admin (Re-add because drop_all removed it)
+        from werkzeug.security import generate_password_hash
+        from models import User
+        hashed_pw = generate_password_hash('admin123')
+        db.session.add(User(username='admin', password=hashed_pw, is_admin=True))
+        
+        # 3. Sync Movies
+        configs = [("en-US", "US", 70), ("hi-IN", "IN", 70), ("ta-IN", "IN", 70), ("te-IN", "IN", 70),
+                   ("ml-IN", "IN", 40), ("kn-IN", "IN", 40), ("bn-IN", "IN", 40), ("mr-IN", "IN", 40),
+                   ("pa-IN", "IN", 30), ("gu-IN", "IN", 30)]
+        
+        total = 0
+        for lang_code, reg, count in configs:
+            print(f"Fetching {count} {LANG_MAP[lang_code]} movies...")
+            movies_data = fetch_movies(lang_code, reg, count)
+            for m in movies_data:
+                movie = Movie(
+                    title=m['title'], description=m['description'],
+                    image_url=m['image_url'], release_year=m['release_year'],
+                    language=m['language'], tier=m['tier'], genres=m['genres'],
+                    available=15
+                )
+                db.session.add(movie)
+                total += 1
         
         db.session.commit()
-        print(f"Successfully synced {total_synced} movies with tiered pricing!")
+        print(f"Sync Complete! {total} movies normalized into 2NF tables.")
 
 if __name__ == "__main__":
     sync()

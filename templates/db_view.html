@@ -3,59 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Explorer - CineStream</title>
+    <title>Database Explorer - CineStream (Normalized 2NF)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #0b0f19;
-            color: #e5e5e5;
-            font-family: 'Outfit', sans-serif;
-        }
-        .container-fluid {
-            padding: 50px 4%;
-        }
-        .table {
-            color: #e5e5e5;
-            background-color: #161d2f;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.9rem;
-        }
-        .table-hover tbody tr:hover {
-            background-color: rgba(0, 212, 255, 0.05);
-            color: #fff;
-        }
-        .header-section {
-            margin-bottom: 20px;
-            border-left: 5px solid #00d4ff;
-            padding-left: 15px;
-        }
-        h2 {
-            color: #00d4ff;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 1.2rem;
-            margin-bottom: 0;
-        }
-        .navbar-custom {
-            background-color: #0b0f19;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
-            padding: 15px 4%;
-        }
-        .card-db {
-            background-color: #161d2f;
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
-            height: 100%;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap');
+        body { background-color: #0b0f19; color: #e5e5e5; font-family: 'Outfit', sans-serif; }
+        .container-fluid { padding: 50px 4%; }
+        .table { color: #e5e5e5; background-color: #161d2f; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
+        .table-hover tbody tr:hover { background-color: rgba(0, 212, 255, 0.05); color: #fff; }
+        .header-section { margin-bottom: 20px; border-left: 5px solid #00d4ff; padding-left: 15px; }
+        h2 { color: #00d4ff; font-weight: 700; text-transform: uppercase; font-size: 1.1rem; margin-bottom: 0; }
+        .card-db { background-color: #161d2f; border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); height: 100%; }
+        .norm-badge { background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid #00d4ff; font-size: 0.7rem; padding: 2px 8px; border-radius: 50px; }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-dark navbar-custom">
+    <nav class="navbar navbar-dark" style="border-bottom: 1px solid rgba(0,212,255,0.1);">
         <div class="container-fluid py-0">
-            <a class="navbar-brand text-info fw-bold" href="/admin">STREAM EXPLORER</a>
+            <a class="navbar-brand text-info fw-bold" href="/admin">STREAM EXPLORER <span class="norm-badge ms-2">2NF NORMALIZED</span></a>
             <div class="d-flex">
                 <a href="/admin" class="btn btn-outline-info btn-sm me-2 rounded-pill px-3">Admin Panel</a>
                 <a href="/movies" class="btn btn-outline-light btn-sm me-2 rounded-pill px-3">Back to Stream</a>
@@ -66,98 +31,120 @@
 
     <div class="container-fluid">
         <div class="row g-4">
-            <!-- User Database -->
-            <div class="col-md-6">
+            <!-- 1. Master Content Table (Shows 2NF FKs) -->
+            <div class="col-12">
                 <div class="card-db">
                     <div class="header-section">
-                        <h2>User Database</h2>
+                        <h2>Master Content Table (Primary Entity)</h2>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead class="bg-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Username</th>
-                                    <th>Level</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in users %}
-                                <tr>
-                                    <td>{{ user.id }}</td>
-                                    <td>{{ user.username }}</td>
-                                    <td><span class="badge {{ 'bg-info text-dark' if user.is_admin else 'bg-secondary' }}">{{ 'Admin' if user.is_admin else 'User' }}</span></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rental Logs -->
-            <div class="col-md-6">
-                <div class="card-db">
-                    <div class="header-section">
-                        <h2>Rental Activity Log</h2>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="bg-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>User</th>
-                                    <th>Movie</th>
-                                    <th>Cost</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for rental in rentals %}
-                                <tr>
-                                    <td>{{ rental.id }}</td>
-                                    <td>UID: {{ rental.user_id }}</td>
-                                    <td>MID: {{ rental.movie_id }}</td>
-                                    <td class="text-info">₹{{ rental.cost }}</td>
-                                    <td>{{ rental.rental_date.strftime('%Y-%m-%d') if rental.rental_date else 'N/A' }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Content Inventory (Full Width) -->
-            <div class="col-md-12 mt-4">
-                <div class="card-db">
-                    <div class="header-section">
-                        <h2>Master Content Inventory</h2>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="bg-dark">
+                            <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Title</th>
                                     <th>Year</th>
-                                    <th>Price</th>
-                                    <th>Stock</th>
+                                    <th>Lang ID (FK)</th>
+                                    <th>Tier ID (FK)</th>
+                                    <th>Genres (M-M)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for movie in movies %}
+                                {% for m in movies %}
                                 <tr>
-                                    <td>{{ movie.id }}</td>
-                                    <td class="fw-bold text-white">{{ movie.title }}</td>
-                                    <td>{{ movie.release_year }}</td>
-                                    <td class="text-info">₹{{ movie.price }}</td>
-                                    <td>{{ movie.available }}</td>
+                                    <td>{{ m.id }}</td>
+                                    <td class="text-white fw-bold">{{ m.title }}</td>
+                                    <td>{{ m.release_year }}</td>
+                                    <td><span class="text-info">{{ m.language_id }}</span> ({{ m.language.name }})</td>
+                                    <td><span class="text-warning">{{ m.tier_id }}</span> ({{ m.tier.name }})</td>
+                                    <td>{% for g in m.genres %}<span class="badge bg-dark border border-secondary me-1">{{ g.name }}</span>{% endfor %}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <!-- 2. Language Lookup Table -->
+            <div class="col-md-4">
+                <div class="card-db">
+                    <div class="header-section">
+                        <h2>Language Lookup (2NF)</h2>
+                    </div>
+                    <table class="table table-hover">
+                        <thead><tr><th>ID (PK)</th><th>Name</th><th>Code</th></tr></thead>
+                        <tbody>
+                            {% for l in languages %}
+                            <tr><td>{{ l.id }}</td><td class="text-white">{{ l.name }}</td><td>{{ l.code }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. Pricing Tier Table -->
+            <div class="col-md-4">
+                <div class="card-db">
+                    <div class="header-section">
+                        <h2>Pricing Tiers (2NF)</h2>
+                    </div>
+                    <table class="table table-hover">
+                        <thead><tr><th>ID (PK)</th><th>Name</th><th>Price</th></tr></thead>
+                        <tbody>
+                            {% for t in tiers %}
+                            <tr><td>{{ t.id }}</td><td class="text-white">{{ t.name }}</td><td class="text-info">₹{{ t.price }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Genre Table -->
+            <div class="col-md-4">
+                <div class="card-db">
+                    <div class="header-section">
+                        <h2>Genre Dictionary (2NF)</h2>
+                    </div>
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-hover">
+                            <thead><tr><th>ID (PK)</th><th>Name</th></tr></thead>
+                            <tbody>
+                                {% for g in genres %}
+                                <tr><td>{{ g.id }}</td><td class="text-white">{{ g.name }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Users and Rentals -->
+            <div class="col-md-6">
+                <div class="card-db">
+                    <div class="header-section"><h2>Users</h2></div>
+                    <table class="table table-hover">
+                        <thead><tr><th>ID</th><th>Username</th><th>Level</th></tr></thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr><td>{{ u.id }}</td><td>{{ u.username }}</td><td>{{ 'Admin' if u.is_admin else 'User' }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card-db">
+                    <div class="header-section"><h2>Rental Log</h2></div>
+                    <table class="table table-hover">
+                        <thead><tr><th>ID</th><th>User</th><th>Movie</th><th>Cost</th></tr></thead>
+                        <tbody>
+                            {% for r in rentals %}
+                            <tr><td>{{ r.id }}</td><td>{{ r.user_id }}</td><td>{{ r.movie_id }}</td><td class="text-info">₹{{ r.cost }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
