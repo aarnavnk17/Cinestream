@@ -71,7 +71,7 @@
                         <div class="small text-muted">{{ item.duration }} Rental</div>
                         <a href="/remove-from-cart/{{ item.id }}" class="btn-remove"><i class="fas fa-trash-alt me-1"></i> Remove</a>
                     </div>
-                    <div class="price">₹{{ item.cost }}</div>
+                    <div class="price">₹{{ item.dynamic_cost }}</div>
                 </div>
                 {% endfor %}
 

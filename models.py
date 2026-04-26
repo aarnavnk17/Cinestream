@@ -64,6 +64,5 @@ class CartItem(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'))
     duration = db.Column(db.String(20))
-    cost = db.Column(db.Integer)
 
     movie = db.relationship('Movie')

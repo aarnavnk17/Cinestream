@@ -31,6 +31,12 @@ with app.app_context():
         except Exception as e:
             print(f"Auto-sync failed: {e}")
 
+def calculate_cost(movie, duration):
+    base_price = movie.tier.price
+    if duration == "1 Week": return int(base_price * 2.5)
+    if duration == "1 Month": return base_price * 6
+    return base_price
+
 # ---------------- LOGIN ----------------
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -99,7 +105,10 @@ def view_cart():
     user = User.query.get(session['user_id'])
     if not user: return redirect('/logout')
     cart_items = CartItem.query.filter_by(user_id=user.id).all()
-    total = sum(item.cost for item in cart_items)
+    # Calculate costs dynamically for 3NF
+    for item in cart_items:
+        item.dynamic_cost = calculate_cost(item.movie, item.duration)
+    total = sum(item.dynamic_cost for item in cart_items)
     return render_template('cart.html', user=user, cart_items=cart_items, total=total)
 
 @app.route('/add-to-cart/<int:id>', methods=['POST'])
@@ -108,12 +117,7 @@ def add_to_cart(id):
     movie = Movie.query.get(id)
     duration = request.form.get('duration')
     
-    base_price = movie.tier.price
-    cost = base_price
-    if duration == "1 Week": cost = int(base_price * 2.5)
-    elif duration == "1 Month": cost = base_price * 6
-
-    new_item = CartItem(user_id=session['user_id'], movie_id=id, duration=duration, cost=cost)
+    new_item = CartItem(user_id=session['user_id'], movie_id=id, duration=duration)
     db.session.add(new_item)
     db.session.commit()
     return redirect('/cart')
@@ -134,13 +138,17 @@ def checkout():
     user = User.query.get(session['user_id'])
     if not user: return redirect('/logout')
     cart_items = CartItem.query.filter_by(user_id=user.id).all()
-    total = sum(item.cost for item in cart_items)
+    for item in cart_items:
+        item.dynamic_cost = calculate_cost(item.movie, item.duration)
+    total = sum(item.dynamic_cost for item in cart_items)
 
     if request.method == 'POST':
         for item in cart_items:
             movie = Movie.query.get(item.movie_id)
             if movie.available > 0:
-                rental = Rental(user_id=user.id, movie_id=item.movie_id, duration=item.duration, cost=item.cost)
+                # Capture cost snapshot for Rental (Historical Record)
+                final_cost = calculate_cost(movie, item.duration)
+                rental = Rental(user_id=user.id, movie_id=item.movie_id, duration=item.duration, cost=final_cost)
                 movie.available -= 1
                 db.session.add(rental)
         CartItem.query.filter_by(user_id=user.id).delete()
