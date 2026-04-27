@@ -66,5 +66,4 @@ We have eliminated all transitive dependencies.
 *   **Amethyst Theme**: A professional UI built with deep midnight purples and vibrant magentas.
 
 ---
-**Developer**: Aarnav Nanda Kumar
-**Version**: 3.0 (Strict 3NF Build)
+
