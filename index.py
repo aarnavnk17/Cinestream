@@ -14,18 +14,22 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
     app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
 
+# Initialize DB but don't create tables at top-level (to avoid Vercel timeouts)
 db.init_app(app)
-# This prevents 'Connection Reset' errors on Vercel
-with app.app_context():
-    db.engine.dispose()
 
-with app.app_context():
+@app.route('/setup')
+def setup():
     db.create_all()
     admin_user = User.query.filter_by(username='admin').first()
     if not admin_user:
         hashed_pw = generate_password_hash('admin123')
         db.session.add(User(username='admin', password=hashed_pw, is_admin=True))
         db.session.commit()
+    return "Database Setup Complete! ✅ <a href='/'>Go to Login</a>"
+
+@app.route('/health')
+def health():
+    return "Healthy! 🚀"
 
 # Automatic Sync is disabled on startup to prevent timeouts on Vercel.
 # Run 'python tmdb_sync.py' locally or trigger via /admin/sync.
