@@ -15,6 +15,13 @@ if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
     app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
 
 # Initialize DB but don't create tables at top-level (to avoid Vercel timeouts)
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': 1,
+    'pool_recycle': 280,
+    'pool_pre_ping': True,
+    'max_overflow': 0
+}
+
 db.init_app(app)
 
 @app.route('/setup')
