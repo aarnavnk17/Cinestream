@@ -16,27 +16,11 @@ if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
 
 db.init_app(app)
 
-with app.app_context():
-    # Only create if not exists - sync handles the reset
-    db.create_all()
-    
-    # ✅ Permanent Admin Setup
-    admin_user = User.query.filter_by(username='admin').first()
-    if not admin_user:
-        print("Creating permanent admin account...")
-        hashed_pw = generate_password_hash('admin123')
-        default_admin = User(username='admin', password=hashed_pw, is_admin=True)
-        db.session.add(default_admin)
-        db.session.commit()
+# Database initialization is handled by tmdb_sync.py locally.
+# This prevents timeouts on Vercel during cold starts.
 
-    # ✅ Automatic Sync on Startup if DB is empty
-    if Movie.query.count() == 0:
-        print("Fresh deployment detected. Running automatic TMDB Sync...")
-        try:
-            from tmdb_sync import sync
-            sync()
-        except Exception as e:
-            print(f"Auto-sync failed: {e}")
+    # Automatic Sync is disabled on startup to prevent timeouts on Vercel.
+    # Run 'python tmdb_sync.py' locally or trigger via /admin/sync.
 
 def calculate_cost(movie, duration):
     base_price = movie.tier.price
