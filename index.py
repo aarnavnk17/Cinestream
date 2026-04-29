@@ -15,6 +15,9 @@ if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
     app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
 
 db.init_app(app)
+# This prevents 'Connection Reset' errors on Vercel
+with app.app_context():
+    db.engine.dispose()
 
 with app.app_context():
     db.create_all()

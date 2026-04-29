@@ -1,5 +1,5 @@
 import requests
-from app import app, db, Movie, Genre, Language, PricingTier
+from index import app, db, Movie, Genre, Language, PricingTier
 
 import os
 TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "e528bd8a8676e863cd592e38f8bb91d7")
