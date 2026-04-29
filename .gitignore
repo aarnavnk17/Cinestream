@@ -5,3 +5,4 @@ instance/
 *.pyc
 database.db
 .vercel
+.env

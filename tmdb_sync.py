@@ -1,7 +1,8 @@
 import requests
 from app import app, db, Movie, Genre, Language, PricingTier
 
-TMDB_API_KEY = "e528bd8a8676e863cd592e38f8bb91d7"
+import os
+TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "e528bd8a8676e863cd592e38f8bb91d7")
 BASE_URL = "https://api.themoviedb.org/3"
 IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w780"
 

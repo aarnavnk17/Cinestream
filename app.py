@@ -2,11 +2,18 @@ from flask import Flask, render_template, redirect, request, session, url_for
 from models import db, Movie, User, Rental, CartItem, Language, Genre, PricingTier
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
+# Workaround for Heroku/Vercel postgres:// vs postgresql://
+if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
+
 db.init_app(app)
 
 with app.app_context():
