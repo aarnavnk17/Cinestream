@@ -65,9 +65,22 @@ def fetch_movies(language_code, region, count=100):
     original_lang = language_code.split('-')[0]
     lang_obj = Language.query.filter_by(code=language_code).first()
 
+    import time
     while len(movies) < count:
         url = f"{BASE_URL}/discover/movie?api_key={TMDB_API_KEY}&language=en-US&region={region}&with_original_language={original_lang}&include_adult=false&sort_by=popularity.desc&page={page}"
-        data = requests.get(url).json()
+        
+        success = False
+        for attempt in range(3):
+            try:
+                data = requests.get(url, timeout=10).json()
+                success = True
+                break
+            except Exception as e:
+                print(f"Fetch failed (attempt {attempt+1}): {e}")
+                time.sleep(2)
+        
+        if not success: break
+        
         results = data.get('results', [])
         if not results: break
 
@@ -119,9 +132,9 @@ def sync():
         db.session.add(User(username='admin', password=hashed_pw, is_admin=True))
         
         # 3. Sync Movies
-        configs = [("en-US", "US", 70), ("hi-IN", "IN", 70), ("ta-IN", "IN", 70), ("te-IN", "IN", 70),
-                   ("ml-IN", "IN", 40), ("kn-IN", "IN", 40), ("bn-IN", "IN", 40), ("mr-IN", "IN", 40),
-                   ("pa-IN", "IN", 30), ("gu-IN", "IN", 30)]
+        configs = [("en-US", "US", 30), ("hi-IN", "IN", 30), ("ta-IN", "IN", 20), ("te-IN", "IN", 20),
+                   ("ml-IN", "IN", 10), ("kn-IN", "IN", 10), ("bn-IN", "IN", 10), ("mr-IN", "IN", 10),
+                   ("pa-IN", "IN", 5), ("gu-IN", "IN", 5)]
         
         total = 0
         for lang_code, reg, count in configs:

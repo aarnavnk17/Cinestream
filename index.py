@@ -19,13 +19,16 @@ db.init_app(app)
 
 @app.route('/setup')
 def setup():
-    db.create_all()
-    admin_user = User.query.filter_by(username='admin').first()
-    if not admin_user:
-        hashed_pw = generate_password_hash('admin123')
-        db.session.add(User(username='admin', password=hashed_pw, is_admin=True))
-        db.session.commit()
-    return "Database Setup Complete! ✅ <a href='/'>Go to Login</a>"
+    try:
+        db.create_all()
+        admin_user = User.query.filter_by(username='admin').first()
+        if not admin_user:
+            hashed_pw = generate_password_hash('admin123')
+            db.session.add(User(username='admin', password=hashed_pw, is_admin=True))
+            db.session.commit()
+        return "Database Setup Complete! ✅ <a href='/'>Go to Login</a>"
+    except Exception as e:
+        return f"Database Setup Failed: {str(e)} ❌"
 
 @app.route('/health')
 def health():
