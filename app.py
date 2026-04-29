@@ -19,8 +19,8 @@ db.init_app(app)
 # Database initialization is handled by tmdb_sync.py locally.
 # This prevents timeouts on Vercel during cold starts.
 
-    # Automatic Sync is disabled on startup to prevent timeouts on Vercel.
-    # Run 'python tmdb_sync.py' locally or trigger via /admin/sync.
+# Automatic Sync is disabled on startup to prevent timeouts on Vercel.
+# Run 'python tmdb_sync.py' locally or trigger via /admin/sync.
 
 def calculate_cost(movie, duration):
     base_price = movie.tier.price
