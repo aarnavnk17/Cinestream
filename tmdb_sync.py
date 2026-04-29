@@ -136,8 +136,9 @@ def sync():
                 )
                 db.session.add(movie)
                 total += 1
+            db.session.commit() # Commit after each language batch
+            print(f"Saved {count} movies for {LANG_MAP[lang_code]}. Total: {total}")
         
-        db.session.commit()
         print(f"Sync Complete! {total} movies normalized into 2NF tables.")
 
 if __name__ == "__main__":
